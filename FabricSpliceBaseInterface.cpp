@@ -43,8 +43,6 @@ _restoredFromPersistenceData = false;
   _dgDirtyEnabled = true;
   _portObjectsDestroyed = false;
 
-  FabricSplice::setDCCOperatorSourceCodeCallback(&FabricSpliceEditorWidget::getSourceCodeForOperator);
-
   MAYASPLICE_CATCH_END(&stat);
 }
 
@@ -1066,7 +1064,7 @@ void FabricSpliceBaseInterface::storePersistenceData(MString file, MStatus *stat
   info.filePath = FabricCore::Variant::CreateString(file.asChar());
 
   FabricCore::Variant dictData = _spliceGraph.getPersistenceDataDict(&info);
-
+  
   saveDataPlug.setString(dictData.getJSONEncoding().getStringData());
 
   MAYASPLICE_CATCH_END(stat);
