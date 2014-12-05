@@ -53,7 +53,7 @@ public:
   virtual void removeMayaAttribute(const MString &portName, MStatus *stat = 0);
   virtual void removePort(const MString &portName, MStatus *stat = 0);
   virtual void addKLOperator(const MString &operatorName, const MString &operatorCode, const MString &operatorEntry, const MString & dgNode, const FabricCore::Variant & portMap, MStatus *stat = 0);
-  virtual void setKLOperatorEntry(const MString &operatorName, const MString &operatorEntry, MStatus *stat = 0);
+  virtual void setKLOperatorEntry(const MString &operatorName, const MString &operatorEntry, bool rebindOperator = false, MStatus *stat = 0);
   virtual void setKLOperatorIndex(const MString &operatorName, unsigned int operatorIndex, MStatus *stat = 0);
   virtual void setKLOperatorCode(const MString &operatorName, const MString &operatorCode, const MString &operatorEntry, MStatus *stat = 0);
   virtual std::string getKLOperatorCode(const MString &operatorName, MStatus *stat = 0);

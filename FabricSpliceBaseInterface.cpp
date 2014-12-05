@@ -1010,12 +1010,20 @@ void FabricSpliceBaseInterface::addKLOperator(const MString &operatorName, const
   MAYASPLICE_CATCH_END(stat);
 }
 
-void FabricSpliceBaseInterface::setKLOperatorEntry(const MString &operatorName, const MString &operatorEntry, MStatus *stat){
+void FabricSpliceBaseInterface::setKLOperatorEntry(const MString &operatorName, const MString &operatorEntry, bool rebindOperator, MStatus *stat){
   MAYASPLICE_CATCH_BEGIN(stat);
 
   FabricSplice::Logging::AutoTimer timer("Maya::setKLOperatorEntry()");
 
-  _spliceGraph.setKLOperatorEntry(operatorName.asChar(), operatorEntry.asChar());
+  if(rebindOperator)
+  {
+    std::string klCode = _spliceGraph.getKLOperatorSourceCode(operatorName.asChar());
+    setKLOperatorCode(operatorName, klCode, operatorEntry);
+  }
+  else
+  {
+    _spliceGraph.setKLOperatorEntry(operatorName.asChar(), operatorEntry.asChar());
+  }
   invalidateNode();
 
   MAYASPLICE_CATCH_END(stat);
