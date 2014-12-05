@@ -77,6 +77,7 @@ MStatus FabricSpliceMayaDeformer::deform(MDataBlock& block, MItGeometry& iter, c
   }
 
   transferInputValuesToSplice(block);
+  clearDirtyPlugs();
 
   FabricCore::RTVal rtValToSet;
   FabricCore::RTVal rtMesh;

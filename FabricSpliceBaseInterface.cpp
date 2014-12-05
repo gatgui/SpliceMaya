@@ -148,8 +148,12 @@ void FabricSpliceBaseInterface::transferInputValuesToSplice(MDataBlock& data){
     }
   }
 
-  _dirtyPlugs.clear();
   _isTransferingInputs = false;
+}
+
+void FabricSpliceBaseInterface::clearDirtyPlugs()
+{
+  _dirtyPlugs.clear();
 }
 
 void FabricSpliceBaseInterface::evaluate(){
@@ -1252,13 +1256,6 @@ void FabricSpliceBaseInterface::invalidateNode()
   }
   _affectedPlugsDirty = true;
   _outputsDirtied = false;
-}
-
-void FabricSpliceBaseInterface::incEvalID(){
-  MFnDependencyNode thisNode(getThisMObject());
-  MPlug evalIDPlug = thisNode.findPlug("evalID");
-  if(!evalIDPlug.isNull())
-    evalIDPlug.setInt((evalIDPlug.asInt() + 1) % 1000);
 }
 
 MStringArray FabricSpliceBaseInterface::getKLOperatorNames(){
