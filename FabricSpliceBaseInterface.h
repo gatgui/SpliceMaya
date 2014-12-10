@@ -49,9 +49,10 @@ public:
   static FabricSpliceBaseInterface * getInstanceByName(const std::string & name);
 
   virtual MObject addMayaAttribute(const MString &portName, const MString &dataType, const MString &arrayType, const FabricSplice::Port_Mode &portMode, bool compoundChild = false, FabricCore::Variant compoundStructure = FabricCore::Variant(), MStatus *stat = 0);
-  virtual void addPort(const MString &portName, const MString &dataType, const FabricSplice::Port_Mode &portMode, const MString & dgNode, bool autoInitObjects, const MString & extension, const FabricCore::Variant & defaultValue, MStatus *stat = 0);
   virtual void removeMayaAttribute(const MString &portName, MStatus *stat = 0);
+  virtual void addPort(const MString &portName, const MString &dataType, const FabricSplice::Port_Mode &portMode, const MString & dgNode, bool autoInitObjects, const MString & extension, const FabricCore::Variant & defaultValue, MStatus *stat = 0);
   virtual void removePort(const MString &portName, MStatus *stat = 0);
+  virtual void updatePortsFromJSON(std::string json, bool removeUnusedPorts = true, MStringArray portsToSkip = MStringArray(), MStatus *stat = 0);
   virtual void addKLOperator(const MString &operatorName, const MString &operatorCode, const MString &operatorEntry, const MString & dgNode, const FabricCore::Variant & portMap, MStatus *stat = 0);
   virtual void setKLOperatorEntry(const MString &operatorName, const MString &operatorEntry, bool rebindOperator = false, MStatus *stat = 0);
   virtual void setKLOperatorIndex(const MString &operatorName, unsigned int operatorIndex, MStatus *stat = 0);
@@ -71,6 +72,8 @@ public:
   virtual FabricSplice::DGGraph & getSpliceGraph() { return _spliceGraph; }
   virtual void setDgDirtyEnabled(bool enabled) { _dgDirtyEnabled = enabled; }
 
+  virtual void onNodeInit();
+  virtual void onNodeCleanup();
   static void onNodeAdded(MObject &node, void *clientData);
   static void onNodeRemoved(MObject &node, void *clientData);
 
@@ -82,6 +85,7 @@ protected:
   virtual void invalidateNode();
   virtual void setupMayaAttributeAffects(MString portName, FabricSplice::Port_Mode portMode, MObject newAttribute, MStatus *stat = 0);
   virtual void transferInputValuesToSplice(MDataBlock& data);
+  virtual MPlugArray getDirtyPlugs();
   virtual void clearDirtyPlugs();
   virtual void evaluate();
   virtual void transferOutputValuesToMaya(MDataBlock& data, bool isDeformer = false);

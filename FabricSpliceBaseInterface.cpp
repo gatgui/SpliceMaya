@@ -51,6 +51,7 @@ FabricSpliceBaseInterface::FabricSpliceBaseInterface(){
 }
 
 FabricSpliceBaseInterface::~FabricSpliceBaseInterface(){
+
   for(size_t i=0;i<_instances.size();i++){
     if(_instances[i] == this){
       std::vector<FabricSpliceBaseInterface*>::iterator iter = _instances.begin() + i;
@@ -149,6 +150,11 @@ void FabricSpliceBaseInterface::transferInputValuesToSplice(MDataBlock& data){
   }
 
   _isTransferingInputs = false;
+}
+
+MPlugArray FabricSpliceBaseInterface::getDirtyPlugs()
+{
+  return _dirtyPlugs;
 }
 
 void FabricSpliceBaseInterface::clearDirtyPlugs()
@@ -959,18 +965,6 @@ void FabricSpliceBaseInterface::setupMayaAttributeAffects(MString portName, Fabr
   MAYASPLICE_CATCH_END(stat);
 }
 
-void FabricSpliceBaseInterface::addPort(const MString &portName, const MString &dataType, const FabricSplice::Port_Mode &portMode, const MString & dgNode, bool autoInitObjects, const MString & extension, const FabricCore::Variant & defaultValue, MStatus *stat){
-  MAYASPLICE_CATCH_BEGIN(stat);
-
-  FabricSplice::Logging::AutoTimer timer("Maya::addPort()");
-
-  _spliceGraph.addDGNodeMember(portName.asChar(), dataType.asChar(), defaultValue, dgNode.asChar(), extension.asChar());
-  _spliceGraph.addDGPort(portName.asChar(), portName.asChar(), portMode, dgNode.asChar(), autoInitObjects);
-  _affectedPlugsDirty = true;
-
-  MAYASPLICE_CATCH_END(stat);
-}
-
 void FabricSpliceBaseInterface::removeMayaAttribute(const MString &portName, MStatus *stat)
 {
   MAYASPLICE_CATCH_BEGIN(stat);
@@ -989,6 +983,18 @@ void FabricSpliceBaseInterface::removeMayaAttribute(const MString &portName, MSt
   MAYASPLICE_CATCH_END(stat);
 }
 
+void FabricSpliceBaseInterface::addPort(const MString &portName, const MString &dataType, const FabricSplice::Port_Mode &portMode, const MString & dgNode, bool autoInitObjects, const MString & extension, const FabricCore::Variant & defaultValue, MStatus *stat){
+  MAYASPLICE_CATCH_BEGIN(stat);
+
+  FabricSplice::Logging::AutoTimer timer("Maya::addPort()");
+
+  _spliceGraph.addDGNodeMember(portName.asChar(), dataType.asChar(), defaultValue, dgNode.asChar(), extension.asChar());
+  _spliceGraph.addDGPort(portName.asChar(), portName.asChar(), portMode, dgNode.asChar(), autoInitObjects);
+  _affectedPlugsDirty = true;
+
+  MAYASPLICE_CATCH_END(stat);
+}
+
 void FabricSpliceBaseInterface::removePort(const MString &portName, MStatus *stat){
   MAYASPLICE_CATCH_BEGIN(stat);
 
@@ -997,6 +1003,11 @@ void FabricSpliceBaseInterface::removePort(const MString &portName, MStatus *sta
   _affectedPlugsDirty = true;
 
   MAYASPLICE_CATCH_END(stat);
+}
+
+void FabricSpliceBaseInterface::updatePortsFromJSON(std::string json, bool removeUnusedPorts, MStringArray portsToSkip, MStatus *stat)
+{
+  // hmathee: todo
 }
 
 void FabricSpliceBaseInterface::addKLOperator(const MString &operatorName, const MString &operatorCode, const MString &operatorEntry, const MString &dgNode, const FabricCore::Variant & portMap, MStatus *stat){
@@ -1018,7 +1029,7 @@ void FabricSpliceBaseInterface::setKLOperatorEntry(const MString &operatorName, 
   if(rebindOperator)
   {
     std::string klCode = _spliceGraph.getKLOperatorSourceCode(operatorName.asChar());
-    setKLOperatorCode(operatorName, klCode, operatorEntry);
+    setKLOperatorCode(operatorName, klCode.c_str(), operatorEntry);
   }
   else
   {
@@ -1494,12 +1505,23 @@ void FabricSpliceBaseInterface::setPortPersistence(const MString &portName, bool
   _spliceGraph.setMemberPersistence(portName.asChar(), persistence);
 }
 
+void FabricSpliceBaseInterface::onNodeInit()
+{
+}
+
+void FabricSpliceBaseInterface::onNodeCleanup()
+{
+}
+
 void FabricSpliceBaseInterface::onNodeAdded(MObject &node, void *clientData)
 {
   MFnDependencyNode thisNode(node);
   FabricSpliceBaseInterface * interf = getInstanceByName(thisNode.name().asChar());
   if(interf)
+  {
     interf->managePortObjectValues(false); // reattach
+    interf->onNodeInit();
+  }
 }
 
 void FabricSpliceBaseInterface::onNodeRemoved(MObject &node, void *clientData)
@@ -1507,7 +1529,10 @@ void FabricSpliceBaseInterface::onNodeRemoved(MObject &node, void *clientData)
   MFnDependencyNode thisNode(node);
   FabricSpliceBaseInterface * interf = getInstanceByName(thisNode.name().asChar());
   if(interf)
+  {
+    interf->onNodeCleanup();
     interf->managePortObjectValues(true); // detach
+  }
 }
 
 void FabricSpliceBaseInterface::managePortObjectValues(bool destroy)
