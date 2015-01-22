@@ -64,10 +64,8 @@ MStatus FabricSpliceMayaNode::compute(const MPlug& plug, MDataBlock& data){
   }
 
   if(transferInputValuesToSplice(data))
-  {
     evaluate();
-    transferOutputValuesToMaya(data);
-  }
+  transferOutputValueToMaya(plug, data);
 
   MAYASPLICE_CATCH_END(&stat);
 
