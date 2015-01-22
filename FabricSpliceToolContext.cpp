@@ -360,19 +360,20 @@ bool FabricSpliceToolContext::onEvent(QEvent *event)
 
           if(isOrthographic){
             double windowAspect = width/height;
-            double left;
-            double right;
-            double bottom;
-            double top;
-            bool  applyOverscan;
-            bool  applySqueeze;
-            bool  applyPanZoom;
+            double left = 0.0;
+            double right = 0.0;
+            double bottom = 0.0;
+            double top = 0.0;
+            bool  applyOverscan = false;
+            bool  applySqueeze = false;
+            bool  applyPanZoom = false;
             camera.getViewingFrustum ( windowAspect, left, right, bottom, top, applyOverscan, applySqueeze, applyPanZoom );
             param = FabricSplice::constructFloat64RTVal(top-bottom);
             inlineCamera.callMethod("", "setOrthographicFrustumHeight", 1, &param);
           }
           else{
-            double fovX, fovY;
+            double fovX = 0.0;
+            double fovY = 0.0;
             camera.getPortFieldOfView(view.portWidth(), view.portHeight(), fovX, fovY);    
             param = FabricSplice::constructFloat64RTVal(fovY);
             inlineCamera.callMethod("", "setFovY", 1, &param);
