@@ -259,7 +259,7 @@ void FabricSpliceBaseInterface::transferOutputValuesToMaya(MDataBlock& data, boo
   }
 }
 
-void FabricSpliceBaseInterface::transferOutputValueToMaya(MPlug& plug, MDataBlock& data, bool isDeformer)
+void FabricSpliceBaseInterface::transferOutputValueToMaya(const MPlug& plug, MDataBlock& data, bool isDeformer)
 {
   if(_isTransferingInputs)
     return;
@@ -301,7 +301,8 @@ void FabricSpliceBaseInterface::transferOutputValueToMaya(MPlug& plug, MDataBloc
   } else {
     SplicePortToPlugFunc func = getSplicePortToPlugFunc(portDataType, &port);
     if(func != NULL) {
-      (*func)(port, plug, data);
+      MPlug localPlug = plug;
+      (*func)(port, localPlug, data);
       data.setClean(plug);
     }
   }
