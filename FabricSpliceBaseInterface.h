@@ -99,6 +99,7 @@ protected:
   bool transferInputValuesToSplice(MDataBlock& data);
   void evaluate();
   void transferOutputValuesToMaya(MDataBlock& data, bool isDeformer = false);
+  void transferOutputValueToMaya(MPlug& plug, MDataBlock& data, bool isDeformer = false);
   void collectDirtyPlug(MPlug const &inPlug);
   void affectChildPlugs(MPlug &plug, MPlugArray &affectedPlugs);
   void setDependentsDirty(MObject thisMObject, MPlug const &inPlug, MPlugArray &affectedPlugs);

@@ -259,6 +259,54 @@ void FabricSpliceBaseInterface::transferOutputValuesToMaya(MDataBlock& data, boo
   }
 }
 
+void FabricSpliceBaseInterface::transferOutputValueToMaya(MPlug& plug, MDataBlock& data, bool isDeformer)
+{
+  if(_isTransferingInputs)
+    return;
+
+  managePortObjectValues(false); // recreate objects if not there yet
+
+  FabricSplice::Logging::AutoTimer globalTimer("Maya::transferOutputValuesToMaya()");
+  std::string localTimerName = (std::string("Maya::")+_spliceGraph.getName()+"::transferOutputValuesToMaya()").c_str();
+  FabricSplice::Logging::AutoTimer localTimer(localTimerName.c_str());
+  
+  MFnDependencyNode thisNode(getThisMObject());
+
+  MString plugName = plug.name();
+  if(plugName.index('.') > -1)
+    plugName = plugName.substring(0, plugName.index('.')-1);
+  if(plugName.index('[') > -1)
+    plugName = plugName.substring(0, plugName.index('[')-1);
+
+  FabricSplice::DGPort port = _spliceGraph.getDGPort(plugName.asChar());
+  if(!port.isValid())
+    return;
+
+  int portMode = (int)port.getMode();
+  if(portMode == (int)FabricSplice::Port_Mode_IN)
+    return;
+    
+  std::string portDataType = port.getDataType();
+  for(size_t i=0;i<mSpliceMayaDataOverride.size();i++)
+  {
+    if(mSpliceMayaDataOverride[i] == plugName.asChar())
+    {
+      portDataType = "SpliceMayaData";
+      break;
+    }
+  }
+
+  if(isDeformer && portDataType == "PolygonMesh") {
+    data.setClean(plug);
+  } else {
+    SplicePortToPlugFunc func = getSplicePortToPlugFunc(portDataType, &port);
+    if(func != NULL) {
+      (*func)(port, plug, data);
+      data.setClean(plug);
+    }
+  }
+}
+
 void FabricSpliceBaseInterface::collectDirtyPlug(MPlug const &inPlug){
 
   FabricSplice::Logging::AutoTimer globalTimer("Maya::collectDirtyPlug()");
