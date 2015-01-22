@@ -1588,6 +1588,8 @@ MStatus FabricSpliceBaseInterface::createAttributeForPort(FabricSplice::DGPort p
   }
 
   MAYASPLICE_CATCH_END(&portStatus);  
+
+  return portStatus;
 }
 
 bool FabricSpliceBaseInterface::plugInArray(const MPlug &plug, const MPlugArray &array){
