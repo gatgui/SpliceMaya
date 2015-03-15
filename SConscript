@@ -14,6 +14,7 @@ Import(
   'MAYA_INCLUDE_DIR',
   'MAYA_LIB_DIR',
   'MAYA_VERSION',
+  'BOOST_LIB_SUFFIX',
   'sharedCapiFlags',
   'spliceFlags',
   )
@@ -54,7 +55,7 @@ env.MergeFlags(sharedCapiFlags)
 env.MergeFlags(spliceFlags)
 
 if FABRIC_BUILD_OS == 'Linux':
-  env.Append(LIBS=['boost_filesystem', 'boost_system'])
+  env.Append(LIBS=map(lambda x: x+BOOST_LIB_SUFFIX, ['boost_filesystem', 'boost_system']))
 
 target = 'FabricSpliceMaya'
 
@@ -63,14 +64,15 @@ sources = env.Glob('*.cpp')
 
 if FABRIC_BUILD_OS == 'Darwin':
   # a loadable module will omit the 'lib' prefix name on Os X
+  vers = FABRIC_SPLICE_VERSION.split(".")
   spliceAppName = 'FabricSpliceMaya'+MAYA_VERSION
   target += '.bundle'
   env.Append(SHLINKFLAGS = ','.join([
     '-Wl',
     '-current_version',
-    '.'.join([env['FABRIC_VERSION_MAJ'],env['FABRIC_VERSION_MIN'],env['FABRIC_VERSION_REV']]),
+    '.'.join(vers),
     '-compatibility_version',
-    '.'.join([env['FABRIC_VERSION_MAJ'],env['FABRIC_VERSION_MIN'],'0']),
+    '.'.join(vers[:-1]),
     '-install_name',
     '@rpath/Splice/Applications/'+spliceAppName+'/plugins/'+spliceAppName+".bundle"
     ]))
